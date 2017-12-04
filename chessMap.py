@@ -130,10 +130,12 @@ class ChessMap:
 		
 		return whiteValue and blackValue
 
-	def move(self, start, finish): 
+	def move(self, start, finish):
 		tempPiece = self.get(start)
-		
+				
 		if tempPiece != None:
+			tempPiece.point = finish
+		
 			self.map[start[0]][start[1]] = None
 			self.map[finish[0]][finish[1]] = tempPiece
 		

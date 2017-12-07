@@ -16,16 +16,16 @@ class ChessPiece:
 			part1 = "W"
 			
 		if self.pieceType == PIECE_KING:
-			part2 = "KI"
+			part2 = "K"
 		elif self.pieceType == PIECE_ROOK:
-			part2 = "RO"
+			part2 = "R"
 		elif self.pieceType == PIECE_BISHOP:
-			part2 = "BI"
+			part2 = "B"
 		elif self.pieceType == PIECE_QUEEN:
-			part2 = "QU"
+			part2 = "Q"
 		elif self.pieceType == PIECE_KNIGHT:
-			part2 = "KN"
+			part2 = "N"
 		elif self.pieceType == PIECE_PAWN:
-			part2 = "PA"
+			part2 = "P"
 					
 		return part1 + "_" + part2

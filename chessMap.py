@@ -18,7 +18,7 @@ class ChessMap:
 			self.map.append(mapRow)
 			
 		self.__init()
-			
+
 	def __init(self):
 		self.add(ChessPiece((0,7), PIECE_ROOK,   PLAYER_WHITE))
 		self.add(ChessPiece((1,7), PIECE_KNIGHT, PLAYER_WHITE))
@@ -41,6 +41,16 @@ class ChessMap:
 		for i in range(0,8):
 			self.add(ChessPiece((i,6), PIECE_PAWN, PLAYER_WHITE))
 			self.add(ChessPiece((i,1), PIECE_PAWN, PLAYER_BLACK))
+	
+	def filterMap(self, pieceType, player):
+		resultList = []
+		
+		for y in range(0,8):
+			for x in range(0,8):
+				if self.map[x][y] != None and self.map[x][y].pieceType == pieceType and self.map[x][y].player == player:
+					resultList.append(self.map[x][y])	
+					
+		return resultList
 			
 	def add(self, chessPiece): 
 		self.map[chessPiece.point[0]][chessPiece.point[1]] = chessPiece
@@ -51,12 +61,14 @@ class ChessMap:
 	def gwc(self, input): #get with code
 		return self.get(self.pwc(input))
 		
-	def pwc(self, input): #pick with code
-		input = str(input).lower()
+	def pwc(self, input): #pick with code		
+		y = str(input[1])		
+		y = int(y)
+		y = 8 - y
 		
-		x = str(input[0])
-		y = str(input[1])
-		
+		return (self.pwcx(str(input[0])), y)
+
+	def pwcx(self, x): #pick with code just x
 		if x == "a":
 			x = 0
 		elif x == "b":
@@ -74,11 +86,8 @@ class ChessMap:
 		elif x == "h":
 			x = 7
 			
-		y = int(y)
-		y = 8 - y
-		
-		return (x,y)
-			
+		return x
+
 	def isPointEmpty(self, point):
 		return self.map[point[0]][point[1]] == None
 		
@@ -130,19 +139,25 @@ class ChessMap:
 		
 		return whiteValue and blackValue
 
-	def move(self, start, finish):
+	def move(self, start, finish, capturePermission):
 		tempPiece = self.get(start)
 				
 		if tempPiece != None:
 			tempPiece.point = finish
-		
+				
+			if (capturePermission == True and self.map[finish[0]][finish[1]] == None) or (capturePermission == False and self.map[finish[0]][finish[1]] != None):
+				return False
+
 			self.map[start[0]][start[1]] = None
 			self.map[finish[0]][finish[1]] = tempPiece
+			return True
+		
+		return False
 		
 	def printMap(self):
 		print ""
-		print "       A      B      C      D      E      F      G      H   "
-		print "   ---------------------------------------------------------   "
+		print "      A     B     C     D     E     F     G     H  "
+		print "   ------------------------------------------------   "
 		
 		for y in range(0,8):
 			printLine = str(8 - y) +  "  | "
@@ -155,14 +170,14 @@ class ChessMap:
 					else :
 						printLine += chessPiece.pieceTypeToString()
 				else :
-					printLine += "    "
+					printLine += "   "
 					
 				printLine += " | "
 				
 			printLine += str(8 - y)
 			
 			print printLine
-			print "   ---------------------------------------------------------   "
+			print "   -------------------------------------------------   "
 
-		print "       A      B      C      D      E      F      G      H   "
+		print "      A     B     C     D     E     F     G     H  "
 		print ""

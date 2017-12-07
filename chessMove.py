@@ -116,12 +116,15 @@ class ChessMove:
 		self.availablePoints = availablePoints
 		return availablePoints
 		
-	def apply(self, point, chessMap):
+	def apply(self, point, capturePermission):
 		if self.availablePoints == None :
 			self.availablePoints = self.getAvailableMoves()
 		
 		availablePoints = self.availablePoints
 		
 		if point in availablePoints:
-			chessMap.move(self.chessPiece.point, point)
-			chessMap.selectedPiece = chessMap.get(point)
+			return self.chessMap.move(self.chessPiece.point, point, capturePermission)
+#			self.chessMap.selectedPiece = self.chessMap.get(point)
+#			return True
+		
+		return False

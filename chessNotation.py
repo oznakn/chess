@@ -25,7 +25,7 @@ class ChessNotation:
 		return best
 		
 	def filterForPieces(self, pieceType, player):
-		return self.chessMap.filterMap(pieceType, player)
+		return self.chessMap.filterMap(player,pieceType)
 		
 	def filterForMoves(self, filteredMap, point):
 		resultFilteredMap = []
@@ -93,7 +93,7 @@ class ChessNotation:
 				elif firstLetter == "N":
 					return self.applyWithPiece(point, PIECE_KNIGHT, player, True)
 
-			elif str(input[1] == "x"): #pawn hasCapturePermission
+			elif str(input[1]) == "x": #pawn hasCapturePermission
 				return self.applyWithPiece(point, PIECE_PAWN, player, True, str(input[0]))
 
 		elif len(input) == 3: #nocapture

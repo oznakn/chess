@@ -8,7 +8,7 @@ class ChessMap:
 	def __init__(self):
 		self.selectedPiece = None
 		self.map = []
-		
+
 		for y in range(0,8):
 			mapRow = []
 			
@@ -42,13 +42,14 @@ class ChessMap:
 			self.add(ChessPiece((i,6), PIECE_PAWN, PLAYER_WHITE))
 			self.add(ChessPiece((i,1), PIECE_PAWN, PLAYER_BLACK))
 	
-	def filterMap(self, pieceType, player):
+	def filterMap(self, player, pieceType = None):
 		resultList = []
 		
 		for y in range(0,8):
 			for x in range(0,8):
-				if self.map[x][y] != None and self.map[x][y].pieceType == pieceType and self.map[x][y].player == player:
-					resultList.append(self.map[x][y])	
+				if self.map[x][y] != None and self.map[x][y].player == player:
+					if pieceType == None or (pieceType != None and self.map[x][y].pieceType == pieceType):
+						resultList.append(self.map[x][y])	
 					
 		return resultList
 			
@@ -139,20 +140,39 @@ class ChessMap:
 		
 		return whiteValue and blackValue
 
-	def move(self, start, finish, capturePermission):
+	def move(self, start, finish, player, capturePermission):
 		tempPiece = self.get(start)
 				
 		if tempPiece != None:
 			tempPiece.point = finish
 				
-			if (capturePermission == True and self.map[finish[0]][finish[1]] == None) or (capturePermission == False and self.map[finish[0]][finish[1]] != None):
+			if (capturePermission == False and self.map[finish[0]][finish[1]] != None):
 				return False
-
+				
 			self.map[start[0]][start[1]] = None
 			self.map[finish[0]][finish[1]] = tempPiece
+			
 			return True
 		
 		return False
+		
+		
+	def duplicate(self):
+		result = ChessMap()
+		newChessMap = []
+		
+		for x in range(0,8):
+			lineOfChessMap = []
+			for y in range(0,8):
+				if self.map[x][y] != None:
+					lineOfChessMap.append(self.map[x][y].duplicate())
+				else:
+					lineOfChessMap.append(None)
+			newChessMap.append(lineOfChessMap)
+			
+		result.map = newChessMap
+		
+		return result
 		
 	def printMap(self):
 		print ""

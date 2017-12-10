@@ -1,3 +1,4 @@
+# coding=utf-8
 import os
 import sys
 from constants import *
@@ -5,6 +6,7 @@ from chessPiece import ChessPiece
 from chessMap import ChessMap
 from chessMove import ChessMove
 from chessNotation import ChessNotation
+from chessAi import ChessAI
 
 def cursorToTop():
 #	sys.stdout.write("\033[F")
@@ -43,7 +45,12 @@ while True:
 	
 	if chessNotation.apply(input, player):
 		inputs.append(input)
-		player = changePlayer(player)
+		
+		chessMap.printMap()
+		
+		chessAi = ChessAI(chessMap)
+		
+		chessMap = chessAi.run().chessMap
 		
 	print " "
 	print " "

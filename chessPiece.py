@@ -6,6 +6,10 @@ class ChessPiece:
 		self.pieceType = pieceType
 		self.player = player
 		
+	def duplicate(self):
+		newChessPiece = ChessPiece(self.point, self.pieceType, self.player)
+		return newChessPiece
+		
 	def pieceTypeToString(self):
 		part1 = ""
 		part2 = ""

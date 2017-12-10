@@ -21,7 +21,8 @@ class ChessMove:
 		
 		if self.chessPiece.pieceType == PIECE_PAWN:
 			if 0 <= self.chessPiece.point[1] + factor[1] < 8 : # normal move
-				availablePoints.append((self.chessPiece.point[0], self.chessPiece.point[1] + factor[1]))
+				if self.chessMap.get((self.chessPiece.point[0], self.chessPiece.point[1] + factor[1])) == None:
+					availablePoints.append((self.chessPiece.point[0], self.chessPiece.point[1] + factor[1]))
 				
 				if 0 <= self.chessPiece.point[0] + 1 < 8: # take move right
 					tempChessPiece = self.chessMap.get((self.chessPiece.point[0] + 1, self.chessPiece.point[1] + factor[1]))
@@ -115,7 +116,29 @@ class ChessMove:
 	
 		self.availablePoints = availablePoints
 		return availablePoints
+	
+	def calculateMark(self, point):
+		if self.availablePoints == None :
+			self.availablePoints = self.getAvailableMoves()
 		
+		availablePoints = self.availablePoints
+		
+		if point in availablePoints:
+			chessPiece = self.chessMap.get(point)
+			if chessPiece == None:
+				return 0
+			elif chessPiece.pieceType == PIECE_PAWN:
+				return 10
+			elif chessPiece.pieceType == PIECE_ROOK:
+				return 40
+			elif chessPiece.pieceType == PIECE_BISHOP:
+				return 30
+			elif chessPiece.pieceType == PIECE_KNIGHT:
+				return 30
+			elif chessPiece.pieceType == PIECE_QUEEN:
+				return 60
+		return 0
+	
 	def apply(self, point, capturePermission):
 		if self.availablePoints == None :
 			self.availablePoints = self.getAvailableMoves()
@@ -123,8 +146,6 @@ class ChessMove:
 		availablePoints = self.availablePoints
 		
 		if point in availablePoints:
-			return self.chessMap.move(self.chessPiece.point, point, capturePermission)
-#			self.chessMap.selectedPiece = self.chessMap.get(point)
-#			return True
+			return self.chessMap.move(self.chessPiece.point, point, self.chessPiece.player, capturePermission)
 		
 		return False

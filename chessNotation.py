@@ -2,80 +2,64 @@ import math
 from constants import *
 from chessPiece import ChessPiece
 from chessMap import ChessMap
-from chessMove import ChessMove
 
 class ChessNotation:
 	def __init__(self, chessMap):
 		self.chessMap = chessMap
-		
+
 	def findDistanceSquare(self, point1, point2):
 		return math.pow(math.fabs(point1[0] - point2[0]), 2) + math.pow(math.fabs(point1[1] - point2[1]), 2)
-	
+
 	def findClosest(self, filteredMap, point):
 		best = filteredMap[0]
 
 		if len(filteredMap) > 1:
 			bestValue = self.findDistanceSquare(best.point, point)
-			
+
 			for i in range(1, len(filteredMap)):
 				if bestValue > self.findDistanceSquare(filteredMap[i].point, point):
 					best = filteredMap[i]
 					bestValue = self.findDistanceSquare(filteredMap[i].point, point)
 
 		return best
-		
-	def filterForPieces(self, pieceType, player):
-		return self.chessMap.filterMap(player,pieceType)
-		
-	def filterForMoves(self, filteredMap, point):
-		resultFilteredMap = []
 
-		for piece in filteredMap:
-			chessMove = ChessMove(self.chessMap, piece)
-			
-			if point in chessMove.getAvailableMoves():
-				resultFilteredMap.append(piece)
-
-		return resultFilteredMap
-
-	def filterForClosestClue(self, filteredMap, closestClue):
-		if closestClue == None:
-			return filteredMap
-
-		resultFilteredMap = []
+	def applyWithPiece(self, point, pieceType, player, capturePermission, closestClue = None):
+		filteredMap = self.chessMap.getChessPiecesCanGoPoint(point)
+		newFilteredMap = []
 
 		for item in filteredMap:
-			if item.point[0] == self.chessMap.pwcx(closestClue):
-				resultFilteredMap.append(item)
+			chessPiece = self.chessMap.get(item)
 
-		return resultFilteredMap
-	
-	def applyWithPiece(self, point, pieceType, player, capturePermission, closestClue = None):
-		filteredMap = self.filterForPieces(pieceType, player)
-		filteredMap = self.filterForMoves(filteredMap, point)
+			if chessPiece != None and chessPiece.player == player and chessPiece.pieceType == pieceType:
+				newFilteredMap.append(chessPiece)
+
+		filteredMap = newFilteredMap
+
+		if closestClue != None:
+			backupFilteredMap = filteredMap
+			filteredMap = []
+
+			for chessPiece in backupFilteredMap:
+				if chessPiece.point[0] == self.chessMap.pwcx(closestClue):
+					filteredMap.append(chessPiece)
 
 		if len(filteredMap) > 0:
-			filteredMap = self.filterForClosestClue(filteredMap, closestClue)
+			closest = filteredMap[0]
 
-			if len(filteredMap) > 0:
-				closest = filteredMap[0]
+			if len(filteredMap) != 1:
+				closest = self.findClosest(filteredMap, point)
 
-				if len(filteredMap) != 1:
-					closest = self.findClosest(filteredMap, point)
+			return self.chessMap.move(closest.point, point, capturePermission)
 
-				chessMove = ChessMove(self.chessMap, closest)
-				
-				return chessMove.apply(point, capturePermission)
-		
 		return False
-	
+
 	def isPieceCodeExceptPawn(self, input):
 		input = str(input)
 		if input == "K" or input == "Q" or input == "B" or input == "R" or input == "N":
 			return True
 
 		return False
-	
+
 	def apply(self, input, player):
 		if len(input) == 4: # capture
 			firstLetter = str(input[0])

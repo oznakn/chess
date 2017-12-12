@@ -1,8 +1,6 @@
-import timeit
 from constants import *
 from chessPiece import ChessPiece
 from chessMap import ChessMap
-from chessMove import ChessMove
 
 counterValue = 0
 
@@ -11,104 +9,87 @@ def counter():
 	counterValue += 1
 
 class Node:
-	def __init__(self, chessMap, mark, player, deep):
+	def __init__(self, chessMap, whichFor, player, deep, mainMove):
 		counter()
+
 		self.chessMap = chessMap
-		self.filteredMap = chessMap.filterMap(player)
-		
-		self.mark = mark
+		self.filteredMap = chessMap.filterMap((None, player))
+		self.mainMove = mainMove
+
+		self.whichFor = whichFor
 		self.player = player
 		self.deep = deep
-		
+
 		self.childNodes = []
 
+		self.mark = self.chessMap.calculateMark(self.whichFor)
+
 	def run(self):
-		newPlayer = PLAYER_BLACK
-		if self.player == PLAYER_BLACK:
-			newPlayer = PLAYER_WHITE
-		
-		for chessPiece in self.filteredMap:
-			if chessPiece != None:
-				chessMove = ChessMove(self.chessMap, chessPiece)
-				moves = chessMove.getAvailableMoves()
-				
-				for move in moves:
+		if self.deep <= 2:
+			newPlayer = PLAYER_BLACK
+			if self.player == PLAYER_BLACK:
+				newPlayer = PLAYER_WHITE
+
+			for chessPiece in self.filteredMap:
+				for move in chessPiece.moves:
 					newChessMap = self.chessMap.duplicate()
 
-					chessMove.chessMap = newChessMap
-					chessMove.apply(move, True)
-					
-					mark = chessMove.calculateMark(move)
-					
-					if chessPiece.player == PLAYER_BLACK:
-						mark *= -1
-						
-					if self.deep <= 1:
-						node = Node(newChessMap, mark, newPlayer, self.deep + 1)
-						self.childNodes.append(node)
-						node.run()
-							
-#	def calculate(self):
-#		resultMark = self.mark
-#		
-#		for node in self.childNodes:
-#			resultMark += node.calculate()
-#		
-#		return resultMark
+					newChessMap.move(chessPiece.point, move, True)
+
+					node = Node(newChessMap, self.whichFor, newPlayer, self.deep + 1, (chessPiece.pieceType, move))
+
+					self.childNodes.append(node)
+
+					node.run()
 
 class ChessAI:
-	def __init__(self, chessMap):
+	def __init__(self, chessMap, whichFor):
+		self.whichFor = whichFor
 		self.chessMap = chessMap
 
 	def alphabeta(self, node, depth, alpha, beta, player):
 		if depth == 0:
 			return node.mark
-			
-		if player == PLAYER_WHITE:
+
+		newPlayer = PLAYER_BLACK
+		if player == PLAYER_BLACK:
+			newPlayer = PLAYER_WHITE
+
+		if len(node.childNodes) == 0:
+			print "anan"
+
+		if player == self.whichFor:
 			value = -9999999
 			for child in node.childNodes:
-				value = max(value, self.alphabeta(child, depth - 1, alpha, beta, PLAYER_BLACK))
+				value = max(value, self.alphabeta(child, depth - 1, alpha, beta, newPlayer))
 				alpha = max(alpha, value)
-				
+
 				if beta <= alpha:
 					break
 			return value
 		else:
 			value = 9999999
 			for child in node.childNodes:
-				value = min(value, self.alphabeta(child, depth - 1, alpha, beta, PLAYER_WHITE))
+				value = min(value, self.alphabeta(child, depth - 1, alpha, beta, newPlayer))
 				beta  = min(beta, value)
-				
+
 				if beta <= alpha:
 					break
 			return value
 
 	def run(self):
-		
-		start = timeit.default_timer()
-		
-		node = Node(self.chessMap, 0,PLAYER_BLACK, 0)
+		node = Node(self.chessMap, self.whichFor, self.whichFor, 0, None)
 		node.run()
 
-		stop = timeit.default_timer()
-
-		print stop - start 
-		start = timeit.default_timer()
-		
 		bestOptionForNode = node.childNodes[0]
-		bestValueForNode = self.alphabeta(bestOptionForNode, 2, -9999999, 9999999, PLAYER_BLACK)
-		
+		bestValueForNode = self.alphabeta(bestOptionForNode, 2, -999999, 9999999, self.whichFor)
+
 		for i in range(1, len(node.childNodes)):
-			calculated = self.alphabeta(node.childNodes[i], 2, -9999999, 9999999, PLAYER_BLACK)
-			
+			calculated = self.alphabeta(node.childNodes[i], 2, -9999999, 9999999, self.whichFor)
+
 			if calculated >= bestValueForNode:
 				bestOptionForNode = node.childNodes[i]
 				bestValueForNode = calculated
-		
-		stop = timeit.default_timer()
-		print stop - start
-		global counterValue		
-		print counterValue
+
 		return bestOptionForNode
-						
-						
+

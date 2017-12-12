@@ -4,53 +4,66 @@ import sys
 from constants import *
 from chessPiece import ChessPiece
 from chessMap import ChessMap
-from chessMove import ChessMove
 from chessNotation import ChessNotation
 from chessAi import ChessAI
 
 def cursorToTop():
-#	sys.stdout.write("\033[F")
 	os.system('cls' if os.name == 'nt' else 'clear')
+	return True
 
 def whoseTurn(player):
 	if player == PLAYER_WHITE:
 		return "WHITE"
 	else:
 		return "BLACK"
-		
+
 def changePlayer(player):
 	if player == PLAYER_BLACK:
 		return PLAYER_WHITE
 	else:
 		return PLAYER_BLACK
-	
+
 inputs = []
 
 player = PLAYER_WHITE
 chessMap = ChessMap()
+chessMap.init()
 
-while True:
+def printAll():
 	cursorToTop()
 	print "PlayersTurn:", whoseTurn(player)
-	
+
 	print " "
-	for inputItem in inputs[-8:]:
+	for inputItem in inputs:
 		print str(inputs.index(inputItem)+1) + ". " + inputItem
-	
+
 	chessMap.printMap()
-	
+	print " "
+	print " "
+
+while True:
+	'''
+	printAll()
+
 	input = raw_input()
-	
-	chessNotation = ChessNotation(chessMap)	
-	
-	if chessNotation.apply(input, player):
-		inputs.append(input)
-		
-		chessMap.printMap()
-		
-		chessAi = ChessAI(chessMap)
-		
-		chessMap = chessAi.run().chessMap
-		
-	print " "
-	print " "
+
+	chessNotation = ChessNotation(chessMap)
+
+	if chessNotation.apply(input, player) != False:
+
+	inputs.append(input)
+
+	player = changePlayer(player)
+	'''
+	printAll()
+
+	chessAi = ChessAI(chessMap, player)
+	bestNode = chessAi.run()
+
+	if bestNode.mainMove != None:
+		output = str(bestNode.mainMove[0]) + " " + str(bestNode.mainMove[1])
+		inputs.append(output)
+
+	chessMap = bestNode.chessMap
+
+	player = changePlayer(player)

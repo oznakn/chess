@@ -4,69 +4,69 @@ from chessPiece import ChessPiece
 
 class ChessMap:
 	#map[8][8]
-	
+
 	def __init__(self):
-		self.selectedPiece = None
-		self.map = []
+		self.pieceMap = []
 
-		for y in range(0,8):
-			mapRow = []
-			
-			for x in range(0,8):
-				mapRow.append(None)
-				
-			self.map.append(mapRow)
-			
-		self.__init()
-
-	def __init(self):
-		self.add(ChessPiece((0,7), PIECE_ROOK,   PLAYER_WHITE))
-		self.add(ChessPiece((1,7), PIECE_KNIGHT, PLAYER_WHITE))
-		self.add(ChessPiece((2,7), PIECE_BISHOP, PLAYER_WHITE))
-		self.add(ChessPiece((3,7), PIECE_QUEEN,  PLAYER_WHITE))
-		self.add(ChessPiece((4,7), PIECE_KING,   PLAYER_WHITE))
-		self.add(ChessPiece((5,7), PIECE_BISHOP, PLAYER_WHITE))
-		self.add(ChessPiece((6,7), PIECE_KNIGHT, PLAYER_WHITE))
-		self.add(ChessPiece((7,7), PIECE_ROOK,   PLAYER_WHITE))
-		
-		self.add(ChessPiece((0,0), PIECE_ROOK,   PLAYER_BLACK))
-		self.add(ChessPiece((1,0), PIECE_KNIGHT, PLAYER_BLACK))
-		self.add(ChessPiece((2,0), PIECE_BISHOP, PLAYER_BLACK))
-		self.add(ChessPiece((3,0), PIECE_QUEEN,  PLAYER_BLACK))
-		self.add(ChessPiece((4,0), PIECE_KING,   PLAYER_BLACK))
-		self.add(ChessPiece((5,0), PIECE_BISHOP, PLAYER_BLACK))
-		self.add(ChessPiece((6,0), PIECE_KNIGHT, PLAYER_BLACK))
-		self.add(ChessPiece((7,0), PIECE_ROOK,   PLAYER_BLACK))
-		
 		for i in range(0,8):
-			self.add(ChessPiece((i,6), PIECE_PAWN, PLAYER_WHITE))
-			self.add(ChessPiece((i,1), PIECE_PAWN, PLAYER_BLACK))
-	
-	def filterMap(self, player, pieceType = None):
-		resultList = []
-		
-		for y in range(0,8):
-			for x in range(0,8):
-				if self.map[x][y] != None and self.map[x][y].player == player:
-					if pieceType == None or (pieceType != None and self.map[x][y].pieceType == pieceType):
-						resultList.append(self.map[x][y])	
-					
-		return resultList
-			
-	def add(self, chessPiece): 
-		self.map[chessPiece.point[0]][chessPiece.point[1]] = chessPiece
-			
+			newArray = []
+
+			for j in range(0,8):
+				newArray.append(None)
+
+			self.pieceMap.append(newArray)
+
+	def init(self):
+		'''
+		self.add(ChessPiece((0,0), PIECE_KNIGHT,   PLAYER_WHITE))
+		self.add(ChessPiece((2,2), PIECE_KNIGHT,   PLAYER_BLACK))
+		'''
+		self.add(ChessPiece((0,0), PIECE_ROOK,   PLAYER_WHITE))
+		self.add(ChessPiece((1,0), PIECE_KNIGHT, PLAYER_WHITE))
+		self.add(ChessPiece((2,0), PIECE_BISHOP, PLAYER_WHITE))
+		self.add(ChessPiece((3,0), PIECE_QUEEN,  PLAYER_WHITE))
+		self.add(ChessPiece((4,0), PIECE_KING,   PLAYER_WHITE))
+		self.add(ChessPiece((5,0), PIECE_BISHOP, PLAYER_WHITE))
+		self.add(ChessPiece((6,0), PIECE_KNIGHT, PLAYER_WHITE))
+		self.add(ChessPiece((7,0), PIECE_ROOK,   PLAYER_WHITE))
+
+		self.add(ChessPiece((0,7), PIECE_ROOK,   PLAYER_BLACK))
+		self.add(ChessPiece((1,7), PIECE_KNIGHT, PLAYER_BLACK))
+		self.add(ChessPiece((2,7), PIECE_BISHOP, PLAYER_BLACK))
+		self.add(ChessPiece((3,7), PIECE_QUEEN,  PLAYER_BLACK))
+		self.add(ChessPiece((4,7), PIECE_KING,   PLAYER_BLACK))
+		self.add(ChessPiece((5,7), PIECE_BISHOP, PLAYER_BLACK))
+		self.add(ChessPiece((6,7), PIECE_KNIGHT, PLAYER_BLACK))
+		self.add(ChessPiece((7,7), PIECE_ROOK,   PLAYER_BLACK))
+
+		for i in range(0,8):
+			self.add(ChessPiece((i,1), PIECE_PAWN, PLAYER_WHITE))
+			self.add(ChessPiece((i,6), PIECE_PAWN, PLAYER_BLACK))
+
+		self.calculateAllMoves()
+
+	def add(self, chessPiece):
+		self.pieceMap[chessPiece.point[0]][chessPiece.point[1]] = chessPiece
+
 	def get(self, point):
-		return self.map[point[0]][point[1]]
-		
+		return self.pieceMap[point[0]][point[1]]
+
+	def set(self, point, chessPiece):
+		chessPiece.point = (point[0], point[1])
+
+		self.pieceMap[point[0]][point[1]] = chessPiece
+
+	def remove(self, point):
+		self.pieceMap[point[0]][point[1]] = None
+
 	def gwc(self, input): #get with code
 		return self.get(self.pwc(input))
-		
-	def pwc(self, input): #pick with code		
-		y = str(input[1])		
+
+	def pwc(self, input): #pick with code
+		y = str(input[1])
 		y = int(y)
-		y = 8 - y
-		
+		y = y - 1
+
 		return (self.pwcx(str(input[0])), y)
 
 	def pwcx(self, x): #pick with code just x
@@ -86,118 +86,141 @@ class ChessMap:
 			x = 6
 		elif x == "h":
 			x = 7
-			
+
 		return x
 
 	def isPointEmpty(self, point):
-		return self.map[point[0]][point[1]] == None
-		
-	def selectPiece(self, point):
-		self.selectedPiece = self.get(point)
-	
-	def deselectPiece(self):
-		self.selectedPiece = None
+		return self.get(point) == None
 
-	def validate(self):
-		#king, queen, rook, bishop, knigt, pawn
-		whiteList = [0,0,0,0,0,0]
-		blackList = [0,0,0,0,0,0]
-		
+	def move(self, fromPoint, toPoint, capturePermission):
+		chessPiece = self.get(fromPoint)
+
+		if toPoint in chessPiece.moves:
+			isEmpty = self.isPointEmpty(toPoint)
+
+			if isEmpty == True or capturePermission == True:
+				self.remove(chessPiece.point)
+				self.set(toPoint, chessPiece)
+
+				filteredPieces = self.getChessPiecesCanGoPoint(toPoint)
+				filteredPieces += self.createRangeFromPoint(toPoint, 1)
+				filteredPieces += self.createRangeFromPoint(chessPiece.point, 1)
+
+				filteredPieces = list(set(filteredPieces))
+
+				for chessPiece in filteredPieces:
+					temp = self.get(chessPiece)
+					if temp != None:
+						temp.generateMoves(self)
+				return True
+
+		return False
+
+	def calculateMark(self, whichFor):
+		mark = 0
+
+		for x in range(0,8):
+			for y in range(0,8):
+				chessPiece = self.pieceMap[x][y]
+
+				if chessPiece != None:
+					factor = -1
+
+					if whichFor == chessPiece.player:
+						factor = 1
+
+					if chessPiece.pieceType == PIECE_KING:
+						mark += 900 * factor
+					elif chessPiece.pieceType == PIECE_QUEEN:
+						mark += 80 * factor
+					elif chessPiece.pieceType == PIECE_ROOK:
+						mark += 50 * factor
+					elif chessPiece.pieceType == PIECE_BISHOP:
+						mark += 30 * factor
+					elif chessPiece.pieceType == PIECE_KNIGHT:
+						mark += 30 * factor
+					elif chessPiece.pieceType == PIECE_PAWN:
+						mark += 10 * factor
+
+		return mark
+
+	def calculateAllMoves(self):
+		for x in range(0,8):
+			for y in range(0,8):
+				chessPiece = self.pieceMap[x][y]
+
+				if chessPiece != None:
+					chessPiece.generateMoves(self)
+
+	def getChessPiecesCanGoPoint(self, point): # pieceType, player
+		resultArray = []
+
+		for x in range(0,8):
+			for y in range(0,8):
+				chessPiece = self.pieceMap[x][y]
+
+				if chessPiece != None and point in chessPiece.moves:
+					resultArray.append(chessPiece.point)
+
+		return resultArray
+
+	def createRangeFromPoint(self, point, size):
+		resultArray = []
+
+		for x in range(size * -1, size + 1):
+			for y in range(size * -1, size + 1):
+
+				if 0 <= point[0] + x < 8 and 0 <= point[1] + y < 8:
+					resultArray.append((point[0] + x, point[1] + y))
+
+		return resultArray
+
+	def duplicate(self):
+		duplicatedChessMap = ChessMap()
+
+		for x in range(0,8):
+			for y in range(0,8):
+				chessPiece = self.pieceMap[x][y]
+				if chessPiece != None:
+					duplicated = chessPiece.duplicate()
+
+					duplicatedChessMap.add(duplicated)
+
+		return duplicatedChessMap
+
+	def filterMap(self, options = (None, None)): # pieceType, player
+		resultList = []
+
 		for y in range(0,8):
 			for x in range(0,8):
-				chessPiece = self.map[x][y]
-				
-				if chessPiece != None:
-					if chessPiece.player == PLAYER_WHITE:
-						if chessPiece.pieceType == PIECE_KING:
-							whiteList[0] += 1
-						elif chessPiece.pieceType == PIECE_QUEEN:
-							whiteList[1] += 1
-						elif chessPiece.pieceType == PIECE_ROOK:
-							whiteList[2] += 1
-						elif chessPiece.pieceType == PIECE_BISHOP:
-							whiteList[3] += 1
-						elif chessPiece.pieceType == PIECE_KNIGHT:
-							whiteList[4] += 1
-						elif chessPiece.pieceType == PIECE_PAWN:
-							whiteList[5] += 1
-					elif chessPiece.player == PLAYER_BLACK:
-						if chessPiece.pieceType == PIECE_KING:
-							blackList[0] += 1
-						elif chessPiece.pieceType == PIECE_QUEEN:
-							blackList[1] += 1
-						elif chessPiece.pieceType == PIECE_ROOK:
-							blackList[2] += 1
-						elif chessPiece.pieceType == PIECE_BISHOP:
-							blackList[3] += 1
-						elif chessPiece.pieceType == PIECE_KNIGHT:
-							blackList[4] += 1
-						elif chessPiece.pieceType == PIECE_PAWN:
-							blackList[5] += 1
-		
-		whiteValue = whiteList[0] == 1 and whiteList[1] == 1 and whiteList[2] == 2 and whiteList[3] == 2 and whiteList[4] == 2 and whiteList[5] == 8
-		blackValue = blackList[0] == 1 and blackList[1] == 1 and blackList[2] == 2 and blackList[3] == 2 and blackList[4] == 2 and blackList[5] == 8
-		
-		return whiteValue and blackValue
+				chessPiece = self.pieceMap[x][y]
 
-	def move(self, start, finish, player, capturePermission):
-		tempPiece = self.get(start)
-				
-		if tempPiece != None:
-			tempPiece.point = finish
-				
-			if (capturePermission == False and self.map[finish[0]][finish[1]] != None):
-				return False
-				
-			self.map[start[0]][start[1]] = None
-			self.map[finish[0]][finish[1]] = tempPiece
-			
-			return True
-		
-		return False
-		
-		
-	def duplicate(self):
-		result = ChessMap()
-		newChessMap = []
-		
-		for x in range(0,8):
-			lineOfChessMap = []
-			for y in range(0,8):
-				if self.map[x][y] != None:
-					lineOfChessMap.append(self.map[x][y].duplicate())
-				else:
-					lineOfChessMap.append(None)
-			newChessMap.append(lineOfChessMap)
-			
-		result.map = newChessMap
-		
-		return result
-		
+				if chessPiece != None and (options[0] == None or chessPiece.pieceType == options[0]) and (options[1] == None or chessPiece.player == options[1]):
+					resultList.append(chessPiece)
+
+		return resultList
+
 	def printMap(self):
-		print ""
 		print "      A     B     C     D     E     F     G     H  "
 		print "   ------------------------------------------------   "
-		
-		for y in range(0,8):
-			printLine = str(8 - y) +  "  | "
+
+		for y in range(7, -1, -1):
+			printLine = str(y + 1) +  "  | "
 			for x in range(0,8):
-				chessPiece = self.map[x][y]
-				
-				if chessPiece != None :
-					if self.selectedPiece != None and self.selectedPiece.point == chessPiece.point :
-						printLine += PrintColors.UNDERLINE + chessPiece.pieceTypeToString() + PrintColors.ENDC
-					else :
-						printLine += chessPiece.pieceTypeToString()
+				chessPiece = self.pieceMap[x][y]
+
+				if chessPiece != None and chessPiece.point == (x,y):
+					printLine += chessPiece.pieceTypeToString()
 				else :
 					printLine += "   "
-					
+
 				printLine += " | "
-				
-			printLine += str(8 - y)
-			
+
+			printLine += str(y + 1)
+
 			print printLine
 			print "   -------------------------------------------------   "
 
+#		print "      0     1     2     3     4     5     6     7  "
 		print "      A     B     C     D     E     F     G     H  "
 		print ""

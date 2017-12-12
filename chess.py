@@ -7,63 +7,106 @@ from chessMap import ChessMap
 from chessNotation import ChessNotation
 from chessAi import ChessAI
 
-def cursorToTop():
-	os.system('cls' if os.name == 'nt' else 'clear')
-	return True
-
-def whoseTurn(player):
-	if player == PLAYER_WHITE:
-		return "WHITE"
-	else:
-		return "BLACK"
-
-def changePlayer(player):
-	if player == PLAYER_BLACK:
-		return PLAYER_WHITE
-	else:
-		return PLAYER_BLACK
-
 inputs = []
 
 player = PLAYER_WHITE
 chessMap = ChessMap()
 chessMap.init()
 
+def cursorToTop():
+	global inputs
+	global player
+	global chessMap
+
+	os.system('cls' if os.name == 'nt' else 'clear')
+	return True
+
+def whoseTurn():
+	global inputs
+	global player
+	global chessMap
+
+	if player == PLAYER_WHITE:
+		return "WHITE"
+	else:
+		return "BLACK"
+
+def changePlayer():
+	global inputs
+	global player
+	global chessMap
+
+	if player == PLAYER_BLACK:
+		player =  PLAYER_WHITE
+	else:
+		player =  PLAYER_BLACK
+
 def printAll():
+	global inputs
+	global player
+	global chessMap
+
 	cursorToTop()
-	print "PlayersTurn:", whoseTurn(player)
+	print "PlayersTurn:", whoseTurn()
 
 	print " "
-	for inputItem in inputs:
+	for inputItem in inputs[-8:]:
 		print str(inputs.index(inputItem)+1) + ". " + inputItem
 
+	print " "
 	chessMap.printMap()
 	print " "
-	print " "
 
-while True:
-	'''
-	printAll()
+def playerVsAI():
+	global inputs
+	global player
+	global chessMap
 
-	input = raw_input()
+	while True:
+		printAll()
 
-	chessNotation = ChessNotation(chessMap)
+		input = raw_input()
 
-	if chessNotation.apply(input, player) != False:
+		chessNotation = ChessNotation(chessMap)
 
-	inputs.append(input)
+		if chessNotation.apply(input, player)[0] == True:
+			inputs.append(whoseTurn() + " " + input)
 
-	player = changePlayer(player)
-	'''
-	printAll()
+			changePlayer()
 
-	chessAi = ChessAI(chessMap, player)
-	bestNode = chessAi.run()
+			printAll()
 
-	if bestNode.mainMove != None:
-		output = str(bestNode.mainMove[0]) + " " + str(bestNode.mainMove[1])
-		inputs.append(output)
+			chessAi = ChessAI(chessMap, player)
+			bestNode = chessAi.run()
 
-	chessMap = bestNode.chessMap
+			if bestNode.mainMove != None and bestNode.mainMove[0] == True:
+				output = chessMap.moveToNotation(bestNode.mainMove[1], bestNode.mainMove[2], bestNode.mainMove[3], bestNode.mainMove[4])
 
-	player = changePlayer(player)
+				inputs.append(whoseTurn() + " " + output)
+
+			chessMap = bestNode.chessMap
+
+			changePlayer()
+
+def aiVsAI():
+	global inputs
+	global player
+	global chessMap
+
+	while True:
+		printAll()
+
+		chessAi = ChessAI(chessMap, player)
+		bestNode = chessAi.run()
+
+		if bestNode.mainMove != None and bestNode.mainMove[0] == True:
+			output = chessMap.moveToNotation(bestNode.mainMove[1], bestNode.mainMove[2], bestNode.mainMove[3], bestNode.mainMove[4])
+
+			inputs.append(whoseTurn() + " " + output)
+
+		chessMap = bestNode.chessMap
+
+		changePlayer()
+
+#playerVsAI()
+aiVsAI()

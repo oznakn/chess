@@ -99,22 +99,36 @@ class ChessMap:
 			isEmpty = self.isPointEmpty(toPoint)
 
 			if isEmpty == True or capturePermission == True:
-				self.remove(chessPiece.point)
+				self.remove(fromPoint)
 				self.set(toPoint, chessPiece)
 
-				filteredPieces = self.getChessPiecesCanGoPoint(toPoint)
-				filteredPieces += self.createRangeFromPoint(toPoint, 1)
-				filteredPieces += self.createRangeFromPoint(chessPiece.point, 1)
+				filteredPoints = self.getChessPiecesCanGoPoint(toPoint)
+				filteredPoints += self.createRangeFromPoint(toPoint, 1)
+				filteredPoints += self.createRangeFromPoint(fromPoint, 1)
 
-				filteredPieces = list(set(filteredPieces))
-
+				filteredPoints = set(filteredPoints)
+				'''
 				for chessPiece in filteredPieces:
 					temp = self.get(chessPiece)
 					if temp != None:
 						temp.generateMoves(self)
-				return True
 
-		return False
+				self.calculateAllMoves()
+				'''
+
+				for x in range(0,8):
+					for y in range(0,8):
+						tempPiece = self.get((x,y))
+
+						if tempPiece != None:
+							tempSet = set(tempPiece.moves) & filteredPoints
+
+							if len(tempSet) != 0 or tempPiece.point in filteredPoints:
+								tempPiece.generateMoves(self)
+
+				return (True, fromPoint, toPoint, chessPiece.pieceType, not isEmpty)
+
+		return (False)
 
 	def calculateMark(self, whichFor):
 		mark = 0
@@ -200,9 +214,73 @@ class ChessMap:
 
 		return resultList
 
+	def pointToNotationX(self, x):
+		result = ""
+
+		if x == 0:
+			result += "a"
+		elif x == 1:
+			result += "b"
+		elif x == 2:
+			result += "c"
+		elif x == 3:
+			result += "d"
+		elif x == 4:
+			result += "e"
+		elif x == 5:
+			result += "f"
+		elif x == 6:
+			result += "g"
+		elif x == 7:
+			result += "h"
+
+		return result
+
+	def pieceToNotation(self, pieceType):
+		result = ""
+
+		if pieceType == PIECE_KING:
+			result += "K"
+		elif pieceType == PIECE_ROOK:
+			result += "R"
+		elif pieceType == PIECE_BISHOP:
+			result += "B"
+		elif pieceType == PIECE_QUEEN:
+			result += "Q"
+		elif pieceType == PIECE_KNIGHT:
+			result += "N"
+
+		return result
+
+	def pointToNotation(self, point):
+		result = ""
+
+		result += self.pointToNotationX(point[0])
+
+		result += str(point[1] + 1)
+
+		return result
+
+	def moveToNotation(self, fromPoint, toPoint, pieceType, hasCaptured):
+		part1 = ""
+
+		part2 = ""
+		if hasCaptured == True:
+			part2 = "x"
+
+		if pieceType == PIECE_PAWN:
+			if hasCaptured == True:
+				part1 = self.pointToNotationX(fromPoint[0])
+		else:
+			part1 = self.pieceToNotation(pieceType)
+
+		part3 = self.pointToNotation(toPoint)
+
+		return part1 + part2 + part3
+
 	def printMap(self):
 		print "      A     B     C     D     E     F     G     H  "
-		print "   ------------------------------------------------   "
+		print "   -------------------------------------------------   "
 
 		for y in range(7, -1, -1):
 			printLine = str(y + 1) +  "  | "
@@ -210,7 +288,7 @@ class ChessMap:
 				chessPiece = self.pieceMap[x][y]
 
 				if chessPiece != None and chessPiece.point == (x,y):
-					printLine += chessPiece.pieceTypeToString()
+					printLine += chessPiece.pieceToPrintString()
 				else :
 					printLine += "   "
 

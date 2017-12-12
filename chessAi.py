@@ -1,17 +1,10 @@
+import time
 from constants import *
 from chessPiece import ChessPiece
 from chessMap import ChessMap
 
-counterValue = 0
-
-def counter():
-	global counterValue
-	counterValue += 1
-
 class Node:
 	def __init__(self, chessMap, whichFor, player, deep, mainMove):
-		counter()
-
 		self.chessMap = chessMap
 		self.filteredMap = chessMap.filterMap((None, player))
 		self.mainMove = mainMove
@@ -34,9 +27,9 @@ class Node:
 				for move in chessPiece.moves:
 					newChessMap = self.chessMap.duplicate()
 
-					newChessMap.move(chessPiece.point, move, True)
+					moveObject = newChessMap.move(chessPiece.point, move, True)
 
-					node = Node(newChessMap, self.whichFor, newPlayer, self.deep + 1, (chessPiece.pieceType, move))
+					node = Node(newChessMap, self.whichFor, newPlayer, self.deep + 1, moveObject)
 
 					self.childNodes.append(node)
 
@@ -48,15 +41,12 @@ class ChessAI:
 		self.chessMap = chessMap
 
 	def alphabeta(self, node, depth, alpha, beta, player):
-		if depth == 0:
+		if depth == 0 or len(node.childNodes) == 0:
 			return node.mark
 
 		newPlayer = PLAYER_BLACK
 		if player == PLAYER_BLACK:
 			newPlayer = PLAYER_WHITE
-
-		if len(node.childNodes) == 0:
-			print "anan"
 
 		if player == self.whichFor:
 			value = -9999999
@@ -78,9 +68,11 @@ class ChessAI:
 			return value
 
 	def run(self):
+		#startTime = time.time()
 		node = Node(self.chessMap, self.whichFor, self.whichFor, 0, None)
 		node.run()
-
+		#print time.time() - startTime
+		#startTime = time.time()
 		bestOptionForNode = node.childNodes[0]
 		bestValueForNode = self.alphabeta(bestOptionForNode, 2, -999999, 9999999, self.whichFor)
 
@@ -90,6 +82,7 @@ class ChessAI:
 			if calculated >= bestValueForNode:
 				bestOptionForNode = node.childNodes[i]
 				bestValueForNode = calculated
-
+		#print time.time() - startTime
+		#print " "
 		return bestOptionForNode
 

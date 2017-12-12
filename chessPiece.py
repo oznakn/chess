@@ -35,7 +35,7 @@ class ChessPiece:
 				if (factor[1] == 1 and self.point[1] == 1) or (factor[1] == -1 and self.point[1] == 6): #white first move pawn || black first move span
 					tempFactor = factor[1] * 2
 
-					if 0 <= self.point[1] + tempFactor < 8 : # normal first move
+					if 0 <= self.point[1] + tempFactor < 8 and chessMap.get((self.point[0], self.point[1] + tempFactor)) == None: # normal first move
 						availablePoints.append((self.point[0], self.point[1] + tempFactor))
 
 		else:
@@ -117,7 +117,7 @@ class ChessPiece:
 
 		return newChessPiece
 
-	def pieceTypeToString(self):
+	def pieceToPrintString(self):
 		part1 = ""
 		part2 = ""
 

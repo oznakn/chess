@@ -51,7 +51,7 @@ class ChessNotation:
 
 			return self.chessMap.move(closest.point, point, capturePermission)
 
-		return False
+		return (False,)
 
 	def isPieceCodeExceptPawn(self, input):
 		input = str(input)
